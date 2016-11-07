@@ -1,0 +1,61 @@
+CREATE PROCEDURE xlateCharSetToCCSID(IN emailCharSet CHARACTER, OUT CCSID INTEGER) 
+BEGIN 
+/*****************************************************************/ 
+/* Test the supplied character set                               */	
+/*****************************************************************/ 
+	CASE UPPER(emailCharSet) 
+		WHEN 'ISO-8859-1' 
+	    	THEN 
+	    		SET CCSID = 819; 
+	    	WHEN 'ISO-8859-2' 
+	    	THEN 
+	    		SET CCSID = 912; 
+	    	WHEN 'ISO-8859-3' 
+	    	THEN 
+	    		SET CCSID = 913; 
+	    	WHEN 'ISO-8859-4' 
+	    	THEN 
+	    		SET CCSID = 914; 
+	    	WHEN 'ISO-8859-5' 
+	    	THEN 
+	    		SET CCSID = 915; 
+	    	WHEN 'ISO-8859-6' 
+	    	THEN 
+	    		SET CCSID = 1089; 
+	    	WHEN 'ISO-8859-7' 
+	    	THEN 
+	    		SET CCSID = 813; 
+	    	WHEN 'WINDOWS-1252' 
+	    	THEN 
+			SET CCSID = 1252; 
+		WHEN 'US-ASCII' 
+		THEN 
+			SET CCSID = 367; 
+		WHEN 'UTF-8' 
+		THEN 
+			SET CCSID = 1208; 
+		WHEN 'UTF-16' 
+		THEN 
+			SET CCSID = 1204; 
+		WHEN 'UTF-32' 
+		THEN 
+			SET CCSID = 1236; 
+		WHEN 'SCSU' 
+		THEN 
+			SET CCSID = 1212; 
+		WHEN 'BOCU-1' 
+		THEN 
+			SET CCSID = 1214; 
+		WHEN 'CESU-8' 
+		THEN 
+		SET CCSID = 9400; 
+		ELSE 
+		/*********************************************************/ 
+		/* Not found:                                            */ 
+		/* indicates unsupported character set supplied          */ 
+		/* Required action - complain bitterly                   */ 
+		/*********************************************************/ 
+			THROW USER EXCEPTION CATALOG 'BIPmsgs' MESSAGE 2951 
+				VALUES('Unsupported character set supplied:', 					emailCharSet); 
+	END CASE; 
+END; 

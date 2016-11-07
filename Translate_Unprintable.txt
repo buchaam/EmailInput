@@ -1,0 +1,33 @@
+    CREATE PROCEDURE xlateUnprintableChars(IN inBlob BLOB, OUT outBlob BLOB) BEGIN 
+		DECLARE workArea1 BLOB; 
+		DECLARE workArea2 BLOB; 
+		/********************************************************/ 
+		/* Declare translation pairs:                                                                  */ 
+		/*      srcXX will be translated to tgtXX                                               */ 
+		/*******************************************************/ 
+    	DECLARE srcA0 BLOB 'a0'; 
+    	DECLARE tgtA0 BLOB '20'; 
+    	DECLARE srcB7 BLOB 'b7'; 
+    	DECLARE tgtB7 BLOB '2e'; 
+    	DECLARE srcC2 BLOB 'c2'; 
+    	DECLARE tgtC2 BLOB '20'; 
+		/********************************************************/ 
+		/* Copy input to work area 1                                                                 */ 
+		/********************************************************/ 
+		SET workArea1 = inBlob; 
+		/********************************************************/ 
+		/* Translate A0 into work area 2 and copy result to work area 1          */ 
+		/********************************************************/ 
+		SET workArea2 = TRANSLATE(workArea1, srcA0, tgtA0); 
+		SET workArea1 = workArea2; 
+		/********************************************************/ 
+		/* Translate B7 into work area 2 and copy result to output                  */ 
+		/********************************************************/ 
+		SET workArea2 = TRANSLATE(workArea1, srcB7, tgtB7); 
+		SET workArea1 = workArea2; 
+		/********************************************************/ 
+		/* Translate C2 into work area 2 and copy result to output                  */ 
+		/********************************************************/ 
+		SET workArea2 = TRANSLATE(workArea1, srcC2, tgtC2); 
+		SET outBlob = workArea2; 
+    END;

@@ -1,0 +1,50 @@
+	CREATE PROCEDURE InsertUUIDLink(IN lclEnvPtr REFERENCE) 
+	BEGIN 
+		DECLARE searchPos INTEGER; 
+		DECLARE foundPos INTEGER; 
+		DECLARE copyStartPos INTEGER; 
+		DECLARE copyLength INTEGER; 
+		DECLARE searchText CHARACTER 'cid:'; 
+		DECLARE searchTextLen INTEGER 4; 
+		DECLARE bodyText CHARACTER; 
+		DECLARE copyText CHARACTER; 
+		DECLARE bodyTextLen INTEGER; 
+		DECLARE resultText CHARACTER; 
+		 
+		/***********************************************/ 
+		/* Copy email body text to work area                                 */		 
+		/***********************************************/ 
+		SET bodyText = lclEnvPtr.bodyText; 
+		SET bodyTextLen = LENGTH(bodyText); 
+		/***********************************************/ 
+		/* Set start condition (search from position 1)                    */		 
+		/***********************************************/ 
+		SET searchPos = 1; 
+		SET foundPos = -1; 
+		/***********************************************/ 
+		/* Loop through bodyTextuntil no more 'cid:'s are found    */		 
+		/***********************************************/ 
+		WHILE foundPos <> 0 
+		DO 
+			SET foundPos = POSITION(searchText IN bodyText FROM searchPos); 
+			IF foundPos <> 0 
+			THEN 
+				SET copyStartPos = searchPos; 
+				SET copyLength = foundPos - searchPos; 
+				SET copyText = SUBSTRING(bodyText FROM copyStartPos FOR copyLength); 
+				IF copyStartPos = 1 
+				THEN 
+					SET resultText = copyText || lclEnvPtr.UUID; 
+				ELSE 
+					SET resultText = resultText || copyText || lclEnvPtr.UUID; 
+				END IF; 
+				SET searchPos = foundPos + searchTextLen; 
+			ELSE 
+				SET copyStartPos = searchPos; 
+				SET copyLength = (bodyTextLen - searchPos) + 1; 
+				SET copyText = SUBSTRING(bodyText FROM copyStartPos FOR copyLength); 
+				SET resultText = resultText || copyText; 
+			END IF;	 
+		END WHILE; 
+		SET lclEnvPtr.bodyText = resultText; 
+	END; 

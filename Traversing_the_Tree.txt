@@ -1,0 +1,64 @@
+…...
+DECLARE bodyTextPtr REFERENCE TO InputRoot.MIME; 
+/******************************************************************/ 
+/* Parse to the right Content Type & set pointer to body text     */		
+/******************************************************************/ 
+/* Try to move to 'Parts' –                                       */  
+/*        this must work or MIME structure is wrong               */ 
+/******************************************************************/ 
+MOVE bodyTextPtr FIRSTCHILD NAME 'Parts'; 
+IF LASTMOVE(bodyTextPtr) 
+THEN 
+	MOVE bodyTextPtr FIRSTCHILD NAME 'Part'; 
+	/***********************************************************/ 
+	/* MOVE must work - if not message MIME is wrong...        */ 
+	/***********************************************************/ 
+	IF NOT LASTMOVE(bodyTextPtr) 
+	THEN 
+		THROW USER EXCEPTION CATALOG 'BIPmsgs' MESSAGE 2951 
+			VALUES('MIME.Parts structure incorrect.'); 
+	END IF;		    	 
+	/*********************************************************/ 
+	/* Try to move to 'Parts' -                              */ 
+	/*     If this works, either attachments or inline       */
+      /*     are present.                              */ 
+    	/*********************************************************/ 
+	MOVE bodyTextPtr FIRSTCHILD NAME 'Parts'; 
+	IF LASTMOVE(bodyTextPtr) 
+	THEN 
+	/*****************************************************/ 
+	/* Move to first 'Part' tag - now standardised       */ 
+	/*****************************************************/ 
+		MOVE bodyTextPtr FIRSTCHILD NAME 'Part'; 
+		/*****************************************************/ 
+		/* MOVE must work - if not message MIME is wrong...  */ 
+		/*****************************************************/ 
+		IF NOT LASTMOVE(bodyTextPtr) 
+		THEN 
+			THROW USER EXCEPTION CATALOG 'BIPmsgs' MESSAGE 2951 
+			VALUES('MIME.Parts.Part.Parts structure incorrect.'); 
+		END IF;		    	 
+		/*****************************************************/ 
+		/* Try to move to 'Parts' - 					*/
+            /*     Inline images and attachments are present     */ 
+		/*****************************************************/ 
+		MOVE bodyTextPtr FIRSTCHILD NAME 'Parts'; 
+		IF LASTMOVE(bodyTextPtr) 
+		THEN 
+		/*****************************************************/ 
+		/* Move to first 'Part' tag - now standardised       */ 
+		/*****************************************************/ 
+			MOVE bodyTextPtr FIRSTCHILD NAME 'Part'; 
+			/***************************************************/ 
+			/* MOVE must work - if not message MIME is wrong.  */ 
+			/***************************************************/ 
+			IF NOT LASTMOVE(bodyTextPtr) 
+			THEN 
+				THROW USER EXCEPTION CATALOG 'BIPmsgs' 
+				MESSAGE 2951 
+					VALUES('MIME.Parts.Part.Parts.Part.Parts 						structure incorrect.'); 
+			END IF;		    	 
+		END IF; 
+	END IF; 
+END IF; 
+….
